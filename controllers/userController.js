@@ -22,21 +22,6 @@ const signup = async (req, res) => {
       return res.status(400).json({ error: 'Email already exist!' });
     }
 
-    // quiz category
-    const quizesCat = [
-      'Marvel universe',
-      'Friends show',
-      'English OTT',
-      'Hindi OTT',
-      'Harry Potter',
-      'Android',
-      'Google and GDSC',
-    ];
-    let userSelectedCategories = [];
-    quizesCat?.map((quizCat) => {
-      quizCategory.includes(quizCat) && userSelectedCategories.push(quizCat);
-    });
-
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
 
@@ -47,7 +32,7 @@ const signup = async (req, res) => {
       college,
       year,
       password: hash,
-      quizCategory: userSelectedCategories,
+      quizCategory,
     });
 
     const token = createToken(user._id);
