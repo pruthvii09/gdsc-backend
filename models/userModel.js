@@ -30,9 +30,12 @@ const userSchema = new Schema(
       required: true,
     },
     quizCategory: [String],
-    score: {
-      type: Number,
-    },
+    score: [
+      {
+        category: { type: String },
+        caregoryScore: { type: Number },
+      },
+    ],
   },
   {
     timestamps: true,

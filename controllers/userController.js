@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const User = require('../models/userModel');
 const Quiz = require('../models/quizModel');
 
@@ -8,6 +9,29 @@ const createToken = (_id) => {
   return jwt.sign({ _id }, process.env.JWT_SECRET, {
     expiresIn: '3d',
   });
+};
+
+// Get profile info
+const getSingleProfile = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id).select(
+      'email name contact college year quizCategory'
+    );
+
+    if (!user) {
+      return res.status(400).json({ error: 'Could not found user' });
+    }
+
+    if (req.user._id.toString() === id) {
+      return res.status(200).json(user);
+    }
+
+    res.status(400).json({ error: 'Could not found user' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 };
 
 // User signup
@@ -37,7 +61,7 @@ const signup = async (req, res) => {
 
     const token = createToken(user._id);
 
-    return res.status(200).json({ email, token });
+    return res.status(200).json({ email, token, id: user._id });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -62,7 +86,7 @@ const login = async (req, res) => {
 
     const token = createToken(user._id);
 
-    return res.status(200).json({ email, token });
+    return res.status(200).json({ email, token, id: user._id });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -108,4 +132,11 @@ const quizAttempt = async (req, res) => {
   });
 };
 
-module.exports = { signup, login, categorySelect, userCategories, quizAttempt };
+module.exports = {
+  getSingleProfile,
+  signup,
+  login,
+  categorySelect,
+  userCategories,
+  quizAttempt,
+};
