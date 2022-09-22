@@ -37,10 +37,7 @@ const signup = async (req, res) => {
 
     const token = createToken(user._id);
 
-    return res
-      .setHeader('Access-Control-Allow-Credentials', true)
-      .status(200)
-      .json({ email, token });
+    return res.status(200).json({ email, token });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
