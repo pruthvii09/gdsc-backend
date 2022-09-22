@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
-const Quiz=require("../models/quizModel");
+const Quiz = require('../models/quizModel');
 
 // Create JWT
 const createToken = (_id) => {
@@ -12,7 +12,8 @@ const createToken = (_id) => {
 
 // User signup
 const signup = async (req, res) => {
-  const { email, name, contact, college, year, password } = req.body;
+  const { email, name, contact, college, year, password, quizCategory } =
+    req.body;
 
   try {
     const exist = await User.findOne({ email });
@@ -20,6 +21,21 @@ const signup = async (req, res) => {
     if (exist) {
       return res.status(400).json({ error: 'Email already exist!' });
     }
+
+    // quiz category
+    const quizesCat = [
+      'Marvel universe',
+      'Friends show',
+      'English OTT',
+      'Hindi OTT',
+      'Harry Potter',
+      'Android',
+      'Google and GDSC',
+    ];
+    let userSelectedCategories = [];
+    quizesCat?.map((quizCat) => {
+      quizCategory.includes(quizCat) && userSelectedCategories.push(quizCat);
+    });
 
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
@@ -31,6 +47,7 @@ const signup = async (req, res) => {
       college,
       year,
       password: hash,
+      quizCategory: userSelectedCategories,
     });
 
     const token = createToken(user._id);
@@ -67,32 +84,43 @@ const login = async (req, res) => {
 };
 
 //Add quiz category to the schema
-const categorySelect = async (req,res)=>{
-    const {email, quizCategory}=req.body;
-    const user={
-        quizCategory
-    }
-    User.findOneAndUpdate({email},user)
-    .then((docs)=>{
+const categorySelect = async (req, res) => {
+  const { email, quizCategory } = req.body;
+  const user = {
+    quizCategory,
+  };
+  User.findOneAndUpdate({ email }, user)
+    .then((docs) => {
       console.log(docs);
       res.end();
     })
-    .catch((err)=>{
-        res.status(400).json({ error: err.message });
-    })
-};
-
-//Quiz Page
-const quizAttempt=async (req,res)=>{
-    const {quizCategory} = req.body;
-    const quizzes=Quiz.findOne({category:quizCategory})
-    .then((docs)=>{
-      console.log(docs);
-      res.json(quizzes);
-    })
-    .catch((err)=>{
-      res.status(400).json({error:err.message});
+    .catch((err) => {
+      res.status(400).json({ error: err.message });
     });
 };
 
-module.exports = { signup, login, categorySelect, quizAttempt };
+//Display the categories which user had selected during registration
+const userCategories = async (req, res) => {
+  const { email } = req.body;
+  User.findOne({ email })
+    .then((docs) => {
+      console.log(docs);
+      const quizCategory = docs.quizCategory;
+      res.send(quizCategory);
+    })
+    .catch((err) => {
+      res.status(400).json({ error: err.message });
+    });
+};
+
+//Quiz on the topic which is passed as parameters
+const quizAttempt = async (req, res) => {
+  const category = req.params.category;
+  Quiz.findOne({ category }).then((docs) => {
+    const quizzes = docs.quizzes;
+    console.log(quizzes);
+    res.send(quizzes);
+  });
+};
+
+module.exports = { signup, login, categorySelect, userCategories, quizAttempt };
