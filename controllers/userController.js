@@ -117,8 +117,8 @@ const forgetPassword = async (req, res) => {
       to: email,
       subject: 'Forgot Password',
       html: `<p>Hello <b><i>${user.name}</i></b><br/> 
-      Follow this link to reset your password for GDSC PESMCOE Android Compose Camp's account!
-      <a href="http://localhost:3000/forgot/${user._id}">Click here!</a><br/>If you didn't ask to reset your password, you can ignore this email.<br/>Regards,<br/><b>GDSC PES MCOE.</b>
+      Follow this link to reset your password for GDSC PES MCOE Android Compose Camp's account!
+      <a href="https://gdsc-pesmcoe.vercel.app/forgot/${user._id}">Click here to reset password!</a><br/>If you didn't ask to reset your password, you can ignore this email.<br/>Regards,<br/><b>GDSC PES MCOE.</b>
       </p>`,
     };
 
