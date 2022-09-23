@@ -17,9 +17,4 @@ router.post('/login', login);
 router.post('/forget', forgetPassword);
 router.patch('/:id', updatePassword);
 
-//
-// router.post('/quizCategory', categorySelect);
-// router.post('/quizAttempt', userCategories);
-// router.get('/quizAttempt/:category', quizAttempt);
-
 module.exports = router;

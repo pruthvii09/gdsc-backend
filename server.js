@@ -6,6 +6,7 @@ const cors = require('cors');
 const userRouter = require('./routes/userRouter');
 const quizRouter = require('./routes/quizRouter');
 const contactRouter = require('./routes/contactRouter');
+const scoreRouter = require('./routes/scoreRouter');
 
 // Initialize app
 const app = express();
@@ -18,6 +19,7 @@ app.use(cors());
 app.use('/api/users', userRouter);
 app.use('/api/quizzes', quizRouter);
 app.use('/api/contact', contactRouter);
+app.use('/api/score', scoreRouter);
 
 // Mongodb connect
 mongoose

@@ -7,6 +7,6 @@ const {
 const router = express.Router();
 
 router.get('/:category', getQuizesByCategory);
-router.post('/', addQuizes);
+router.post('/:category', addQuizes);
 
 module.exports = router;

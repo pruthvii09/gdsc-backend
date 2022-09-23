@@ -25,6 +25,15 @@ const signup = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
 
+    const scores = [];
+    quizCategory.map((category) =>
+      scores.push({
+        category: category,
+        caregoryScore: 0,
+        submitted: false,
+      })
+    );
+
     const user = await User.create({
       email,
       name,
@@ -33,6 +42,7 @@ const signup = async (req, res) => {
       year,
       password: hash,
       quizCategory,
+      score: scores,
     });
 
     const token = createToken(user._id);
@@ -115,7 +125,7 @@ const forgetPassword = async (req, res) => {
     const mailDetails = {
       from: process.env.EMAIL,
       to: email,
-      subject: 'Forgot Password',
+      subject: 'Password Reset Request',
       html: `<p>Hello <b><i>${user.name}</i></b><br/> 
       Follow this link to reset your password for GDSC PES MCOE Android Compose Camp's account!
       <a href="https://gdsc-pesmcoe.vercel.app/forgot/${user._id}">Click here to reset password!</a><br/>If you didn't ask to reset your password, you can ignore this email.<br/>Regards,<br/><b>GDSC PES MCOE.</b>
@@ -159,10 +169,30 @@ const updatePassword = async (req, res) => {
   }
 };
 
+// Add score for quiz category
+const addScoreForQuizCategory = async (req, res) => {
+  const { category, categoryScore } = req.body;
+  const { id } = req.params;
+
+  try {
+    console.log(req.user._id.toString() === id);
+
+    if (req.user._id.toString() === id) {
+      const user = await User.findById(id);
+      // console.log(user);
+
+      res.status(400).json({ error: 'Not selected category' });
+    }
+  } catch (error) {}
+
+  // res.status(200).json({ message: 'Score added' });
+};
+
 module.exports = {
   signup,
   login,
   getSingleProfile,
   forgetPassword,
   updatePassword,
+  addScoreForQuizCategory,
 };
