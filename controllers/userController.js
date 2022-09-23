@@ -1,37 +1,13 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
+const nodemailer = require('nodemailer');
 const User = require('../models/userModel');
-const Quiz = require('../models/quizModel');
 
 // Create JWT
 const createToken = (_id) => {
   return jwt.sign({ _id }, process.env.JWT_SECRET, {
     expiresIn: '3d',
   });
-};
-
-// Get profile info
-const getSingleProfile = async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const user = await User.findById(id).select(
-      'email name contact college year quizCategory'
-    );
-
-    if (!user) {
-      return res.status(400).json({ error: 'Could not found user' });
-    }
-
-    if (req.user._id.toString() === id) {
-      return res.status(200).json(user);
-    }
-
-    res.status(400).json({ error: 'Could not found user' });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
 };
 
 // User signup
@@ -92,51 +68,101 @@ const login = async (req, res) => {
   }
 };
 
-//Add quiz category to the schema
-const categorySelect = async (req, res) => {
-  const { email, quizCategory } = req.body;
-  const user = {
-    quizCategory,
-  };
-  User.findOneAndUpdate({ email }, user)
-    .then((docs) => {
-      console.log(docs);
-      res.end();
-    })
-    .catch((err) => {
-      res.status(400).json({ error: err.message });
-    });
+// Get profile info
+const getSingleProfile = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id).select(
+      'email name contact college year quizCategory'
+    );
+
+    if (!user) {
+      return res.status(400).json({ error: 'Could not found user' });
+    }
+
+    if (req.user._id.toString() === id) {
+      return res.status(200).json(user);
+    }
+
+    res.status(400).json({ error: 'Could not found user' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 };
 
-//Display the categories which user had selected during registration
-const userCategories = async (req, res) => {
+// Forget password
+const forgetPassword = async (req, res) => {
   const { email } = req.body;
-  User.findOne({ email })
-    .then((docs) => {
-      console.log(docs);
-      const quizCategory = docs.quizCategory;
-      res.send(quizCategory);
-    })
-    .catch((err) => {
-      res.status(400).json({ error: err.message });
+
+  try {
+    const user = await User.findOne({ email: email });
+
+    if (!user) {
+      res
+        .status(400)
+        .json({ error: 'There is no account registered with this email!' });
+    }
+
+    const mailTransporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
+      },
     });
+
+    const mailDetails = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: 'Forgot Password',
+      html: `<p>Hello <b><i>${user.name}</i></b><br/> 
+      Follow this link to reset your password for GDSC PESMCOE Android Compose Camp's account!
+      <a href="http://localhost:3000/forgot/${user._id}">Click here!</a><br/>If you didn't ask to reset your password, you can ignore this email.<br/>Regards,<br/><b>GDSC PES MCOE.</b>
+      </p>`,
+    };
+
+    mailTransporter.sendMail(mailDetails, function (err, data) {
+      if (err) {
+        res.status(400).json({ error: err });
+      } else {
+        res.status(200).json({ message: 'Email send!!' });
+      }
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 };
 
-//Quiz on the topic which is passed as parameters
-const quizAttempt = async (req, res) => {
-  const category = req.params.category;
-  Quiz.findOne({ category }).then((docs) => {
-    const quizzes = docs.quizzes;
-    console.log(quizzes);
-    res.send(quizzes);
-  });
+// Update forward
+const updatePassword = async (req, res) => {
+  const { password } = req.body;
+  const { id } = req.params;
+
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, salt);
+
+    const user = await User.findOneAndUpdate(
+      {
+        _id: id,
+      },
+      { password: hash }
+    );
+
+    if (!user) {
+      return res.status(400).json({ error: 'Could not change password!' });
+    }
+    res.status(200).json({ message: 'Password changed successfully!' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 };
 
 module.exports = {
-  getSingleProfile,
   signup,
   login,
-  categorySelect,
-  userCategories,
-  quizAttempt,
+  getSingleProfile,
+  forgetPassword,
+  updatePassword,
 };

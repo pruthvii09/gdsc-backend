@@ -34,6 +34,7 @@ const userSchema = new Schema(
       {
         category: { type: String },
         caregoryScore: { type: Number },
+        // submittedAt: {type:Date}
       },
     ],
   },
