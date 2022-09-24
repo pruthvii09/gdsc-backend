@@ -9,6 +9,9 @@ const scoreSchema = new Schema(
     live: {
       type: Boolean,
     },
+    password: {
+      type: String,
+    },
     attende: [
       {
         id: { type: String },

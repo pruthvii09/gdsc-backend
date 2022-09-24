@@ -74,9 +74,25 @@ const checkLive = async (req, res) => {
   });
 };
 
+// Get password
+const getPassword = async (req, res) => {
+  const { category } = req.params;
+
+  const password = await Score.findOne({ category: category }).select(
+    'password'
+  );
+
+  if (password) {
+    return res.status(200).json(password.password);
+  }
+
+  res.status(400).json({ error: 'Could not find password' });
+};
+
 module.exports = {
   getScoreByCategory,
   addScoreByCategory,
   checkExamAlreadyGive,
   checkLive,
+  getPassword,
 };
