@@ -10,15 +10,8 @@ const getScoreByCategory = async (req, res) => {
 
 // Add score
 const addScoreByCategory = async (req, res) => {
-  //   const score = await Score.create({ category: category });
-  //   console.log(category);
   const { category } = req.params;
   const { id, name, score } = req.body;
-
-  console.log(category);
-
-  //   const find = await Score.findOne({ category: category });
-  //   console.log(find);
 
   const addScore = await Score.updateOne(
     { category: category },
@@ -39,18 +32,14 @@ const addScoreByCategory = async (req, res) => {
     });
   }
 
-  return res.status(400).json({ error: '' });
+  res.status(400).json({ error: '' });
 };
 
 const checkExamAlreadyGive = async (req, res) => {
   const { category } = req.query;
   const { id } = req.params;
 
-  console.log('HELLO ALL', category, id);
-
   const containCategory = await User.findOne({ _id: id });
-
-  console.log(category);
 
   if (containCategory) {
     if (containCategory.quizCategory.includes(category)) {
