@@ -5,13 +5,22 @@ const getScoreByCategory = async (req, res) => {
   const { category } = req.params;
 
   const scores = await Score.findOne({ category: category });
-  res.status(200).json(scores);
+
+  if (scores.attende.length > 0) {
+    const sortByTime = scores.attende.sort(
+      (a, b) => a.submittedAt - b.submittedAt
+    );
+    const sortedByScore = sortByTime.sort((a, b) => b.score - a.score);
+
+    return res.status(200).json(sortedByScore);
+  }
+  res.status(400).json({ error: 'Could not find score!' });
 };
 
 // Add score
 const addScoreByCategory = async (req, res) => {
   const { category } = req.params;
-  const { id, name, score } = req.body;
+  const { id, name, score, submittedAt, year } = req.body;
 
   const addScore = await Score.updateOne(
     { category: category },
@@ -21,6 +30,8 @@ const addScoreByCategory = async (req, res) => {
           id,
           name,
           score,
+          submittedAt,
+          year,
         },
       },
     }
@@ -32,7 +43,7 @@ const addScoreByCategory = async (req, res) => {
     });
   }
 
-  res.status(400).json({ error: '' });
+  res.status(400).json({ error: 'error occured' });
 };
 
 const checkExamAlreadyGive = async (req, res) => {
@@ -89,10 +100,29 @@ const getPassword = async (req, res) => {
   res.status(400).json({ error: 'Could not find password' });
 };
 
+// add new category
+const addCategory = async (req, res) => {
+  const { category, live, password, attende } = req.body;
+
+  const newCategory = await Score.create({
+    category,
+    live,
+    password,
+    attende,
+  });
+
+  if (newCategory) {
+    return res.status(200).json({ message: 'Category added!' });
+  }
+
+  res.status(400).send({ message: 'Could not add category' });
+};
+
 module.exports = {
   getScoreByCategory,
   addScoreByCategory,
   checkExamAlreadyGive,
   checkLive,
   getPassword,
+  addCategory,
 };

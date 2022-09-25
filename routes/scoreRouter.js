@@ -6,10 +6,12 @@ const {
   checkExamAlreadyGive,
   checkLive,
   getPassword,
+  addCategory,
 } = require('../controllers/scoreController');
 
 const router = express.Router();
 
+router.post('/add-category/', addCategory);
 router.post('/:category', addScoreByCategory);
 router.get('/:category', getScoreByCategory);
 router.get('/check-done/:id', checkExamAlreadyGive);

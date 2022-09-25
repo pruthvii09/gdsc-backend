@@ -17,6 +17,8 @@ const scoreSchema = new Schema(
         id: { type: String },
         name: { type: String },
         score: { type: Number },
+        year: { type: String },
+        submittedAt: { type: String },
       },
     ],
   },
