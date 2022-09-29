@@ -188,11 +188,58 @@ const addScoreForQuizCategory = async (req, res) => {
   // res.status(200).json({ message: 'Score added' });
 };
 
+// Send mail for registration
+const sendMail = async (req, res) => {
+  const { category } = req.params;
+
+  // try {
+  //   const users = await User.find({ quizCategory: category }).limit(1);
+
+  //   if (users) {
+  //     users.map((user) => {
+  //       const mailTransporter = nodemailer.createTransport({
+  //         service: 'gmail',
+  //         auth: {
+  //           user: process.env.EMAIL,
+  //           pass: process.env.PASSWORD,
+  //         },
+  //       });
+
+  //       const mailDetails = {
+  //         from: process.env.EMAIL,
+  //         to: user.email,
+  //         subject: `Slot Confirmation for ${category}!`,
+  //         html: `<p>Hello <b><i>${user.name},</i></b><br/>
+  //         &nbsp;&nbsp;&nbsp;&nbsp;Thank you for registering for ${category} quiz. Your reservation for ${category} quiz has been confirmed.<br/><br/>You can find more information about quiz below.<br/><b>Date & time:</b> 30 September 2022 & {Time here}<br/><b>Location:</b>{Loaction here}<br/><br/><br/>Regards,<br/><b>GDSC PES MCOE.</b>
+  //         </p>`,
+  //       };
+
+  //       mailTransporter.sendMail(mailDetails, function (err, data) {
+  //         if (err) {
+  //           return res.status(400).json({ error: err });
+  //         } else {
+  //           return res.status(200).json({ message: 'Email send!!' });
+  //         }
+  //       });
+  //     });
+  //   }
+  // } catch (error) {
+  //   return res.status(400).json({ error: error.message });
+  // }
+
+  const users = await User.find({ quizCategory: category }).limit(300);
+
+  res
+    .status(200)
+    .json({ message: `Registered users for ${category} are: ${users.length}` });
+};
+
 module.exports = {
   signup,
   login,
   getSingleProfile,
   forgetPassword,
   updatePassword,
+  sendMail,
   addScoreForQuizCategory,
 };
